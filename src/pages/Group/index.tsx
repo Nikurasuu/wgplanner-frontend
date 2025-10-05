@@ -6,8 +6,8 @@ import { Footer } from '../../components/Footer';
 
 
 export function Group() {
-	const [success, setSuccess] = useState(false);
-	const [error, setError] = useState(false);
+	const [success, setSuccess] = useState("");
+	const [error, setError] = useState("");
 	const [groupData, setGroupData] = useState(null);
 
 	const wgId = localStorage.getItem('wgId')
@@ -23,31 +23,31 @@ export function Group() {
 		<div className="home">
 			
 			{groupData ? (
-				<GroupDetails {...groupData} />
+				<GroupDetails groupData={groupData} setSuccess={setSuccess} setError={setError} />
 			) : (
 				<Typography variant="h6" gutterBottom>
 					Lade WG-Daten...
 				</Typography>
 			)}
 
-			<Snackbar open={success} autoHideDuration={6000} onClose={() => setSuccess(false)}>
+			<Snackbar open={!!success} autoHideDuration={6000} onClose={() => setSuccess("")}>
 				<Alert
-					onClose={() => setSuccess(false)}
+					onClose={() => setSuccess("")}
 					severity="success"
 					variant="filled"
 					sx={{ width: '100%' }}
 				>
-					Das hat geklappt!
+					{success}
 				</Alert>
 			</Snackbar>
-			<Snackbar open={error} autoHideDuration={6000} onClose={() => setError(false)}>
+			<Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError("")}>
 				<Alert
-					onClose={() => setError(false)}
+					onClose={() => setError("")}
 					severity="error"
 					variant="filled"
 					sx={{ width: '100%' }}
 				>
-					Das hat leider nicht geklappt.
+					{error}
 				</Alert>
 			</Snackbar>
 			<Footer />
@@ -64,11 +64,11 @@ export function Group() {
 		})
 		.then(data => {
 			setGroupData(data);
-			setSuccess(true);
+			setSuccess("WG-Daten geladen");
 		})
 		.catch(error => {
 			console.error('There was a problem with the fetch operation:', error);
-			setError(true);
+			setError("Fehler beim Laden der WG-Daten");
 		});
 	}
 }

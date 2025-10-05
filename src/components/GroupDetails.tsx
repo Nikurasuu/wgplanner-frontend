@@ -1,20 +1,43 @@
 import Button from "@mui/material/Button";
-import { Grid, Accordion, AccordionSummary, AccordionDetails, Typography } from "@mui/material";
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { Grid, Accordion, AccordionSummary, AccordionDetails, Typography, Dialog, DialogActions, DialogTitle } from "@mui/material";
+import { DataGrid, GridActionsCellItem, GridActionsCellItemProps, GridColDef } from '@mui/x-data-grid';
 import Paper from "@mui/material/Paper";
 import { useState } from "react";
 import { AddUserDialog } from "./AddUserDialog";
+import { API_BASE_URL, GROUPS_ENDPOINT } from "../const";
+import React from "react";
 
-export function GroupDetails(groupData: any) {
+export function GroupDetails({
+        groupData,
+        setSuccess,
+        setError,
+    }: {
+        groupData: any;
+        setSuccess: (value: string) => void;
+        setError: (value: string) => void;
+    }) {
     const [openAddUserDialog, setOpenAddUserDialog] = useState(false);
     const [members, setMembers] = useState(groupData.members || []);
 
-    const memberColumns: GridColDef<(typeof members)[number]>[] = [
+    const memberColumns: GridColDef[] = [
         {
             field: 'name',
             headerName: 'Name',
-            width: 360,
-        }
+            width: 200,
+        },
+        {
+        field: 'actions',
+        type: 'actions',
+        width: 80,
+        getActions: (params) => [
+          <DeleteUserActionItem
+            label="Entfernen"
+            showInMenu
+            deleteUser={() => removeMember(params.id as string)}
+            closeMenuOnClick={false}
+          />,
+        ],
+      },
     ];
 
     return (
@@ -37,17 +60,7 @@ export function GroupDetails(groupData: any) {
                                 {members.length > 0 ? (
                                     <DataGrid
                                         rows={members}
-                                        columns={memberColumns}
-                                        initialState={{
-                                        pagination: {
-                                                paginationModel: {
-                                                pageSize: 5,
-                                                },
-                                            },
-                                        }}
-                                        pageSizeOptions={[5]}
-                                        checkboxSelection
-                                        disableRowSelectionOnClick
+                                        columns={memberColumns}                                                                                
                                     />
                                 ) : (
                                     <>
@@ -57,9 +70,6 @@ export function GroupDetails(groupData: any) {
                                 )}
                                 <Button variant="contained" color="primary" onClick={() => setOpenAddUserDialog(true)}>
                                     Mitglied hinzufügen
-                                </Button>
-                                <Button variant="contained" disabled={true} color="primary" style={{ marginLeft: 8 }}>
-                                    Mitglied entfernen
                                 </Button>
                             </AccordionDetails>
                         </Accordion>
@@ -75,4 +85,62 @@ export function GroupDetails(groupData: any) {
             </Grid>
         </div>
     );
+
+    function removeMember(memberId: string) {
+        fetch(`${API_BASE_URL}/${GROUPS_ENDPOINT}/${groupData.id}/members/${memberId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                setSuccess("Mitglied entfernt!");
+                setMembers(members.filter((m: any) => m.id !== memberId));
+            } else {
+                setError("Fehler beim Entfernen des Mitglieds.");
+                console.error('Fehler beim Entfernen des Mitglieds');
+            }
+        })
+        .catch(error => {
+            setError("Netzwerkfehler beim Entfernen des Mitglieds.");
+            console.error('Netzwerkfehler:', error);
+        });
+    }   
+
+    function DeleteUserActionItem({
+        deleteUser,
+        ...props
+        }: GridActionsCellItemProps & { deleteUser: () => void }) {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+            <>
+                <GridActionsCellItem {...props} onClick={() => setOpen(true)} />
+                <Dialog
+                    open={open}
+                    onClose={() => setOpen(false)}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">Mitglied entfernen?</DialogTitle>
+                    <DialogActions>
+                        <Button onClick={() => setOpen(false)}>
+                            Abbrechen
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                setOpen(false);
+                                deleteUser();
+                            }}
+                            color="warning"
+                            autoFocus
+                        >
+                            Entfernen
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </>
+        );
+    }
 }

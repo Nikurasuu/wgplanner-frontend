@@ -1,30 +1,24 @@
 import Button from "@mui/material/Button";
 import { Grid, Accordion, AccordionSummary, AccordionDetails, Typography, Dialog, DialogActions, DialogTitle } from "@mui/material";
-import { DataGrid, GridActionsCellItem, GridActionsCellItemProps, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import Paper from "@mui/material/Paper";
 import { useState } from "react";
 import { AddUserDialog } from "./AddUserDialog";
 import { API_BASE_URL, GROUPS_ENDPOINT } from "../const";
 import React from "react";
 
-export function GroupDetails({
-        groupData,
-        setSuccess,
-        setError,
-    }: {
-        groupData: any;
-        setSuccess: (value: string) => void;
-        setError: (value: string) => void;
-    }) {
+export function GroupDetails( { groupData, setSuccess, setError } ) {
     const [openAddUserDialog, setOpenAddUserDialog] = useState(false);
     const [members, setMembers] = useState(groupData.members || []);
 
-    const memberColumns: GridColDef[] = [
+    console.log("GroupDetails render with groupData:", groupData);
+
+    const memberColumns = [
         {
             field: 'name',
             headerName: 'Name',
-            width: 200,
-        },
+                width: 200,
+            },
         {
         field: 'actions',
         type: 'actions',
@@ -33,7 +27,7 @@ export function GroupDetails({
           <DeleteUserActionItem
             label="Entfernen"
             showInMenu
-            deleteUser={() => removeMember(params.id as string)}
+            deleteUser={() => removeMember(params.id)}
             closeMenuOnClick={false}
           />,
         ],
@@ -86,7 +80,7 @@ export function GroupDetails({
         </div>
     );
 
-    function removeMember(memberId: string) {
+    function removeMember(memberId) {
         fetch(`${API_BASE_URL}/${GROUPS_ENDPOINT}/${groupData.id}/members/${memberId}`, {
             method: 'DELETE',
             headers: {
@@ -96,7 +90,7 @@ export function GroupDetails({
         .then(response => {
             if (response.ok) {
                 setSuccess("Mitglied entfernt!");
-                setMembers(members.filter((m: any) => m.id !== memberId));
+                setMembers(members.filter((m) => m.id !== memberId));
             } else {
                 setError("Fehler beim Entfernen des Mitglieds.");
                 console.error('Fehler beim Entfernen des Mitglieds');
@@ -108,10 +102,7 @@ export function GroupDetails({
         });
     }   
 
-    function DeleteUserActionItem({
-        deleteUser,
-        ...props
-        }: GridActionsCellItemProps & { deleteUser: () => void }) {
+    function DeleteUserActionItem( {deleteUser, ...props } ) {
         const [open, setOpen] = React.useState(false);
 
         return (

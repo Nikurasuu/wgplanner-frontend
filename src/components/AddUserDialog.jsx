@@ -56,7 +56,7 @@ export function AddUserDialog({open, onClose, setMembers}) {
                         fullWidth
                         variant="standard"
                         value={name}
-                        onChange={(e) => setName((e.target as HTMLInputElement).value)}
+                        onChange={(e) => setName(e.target.value)}
                     />
                 </DialogContent>
                 <DialogActions>

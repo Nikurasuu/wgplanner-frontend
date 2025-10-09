@@ -33,7 +33,7 @@ export function Home() {
 							size="small" 
 							type= "password"
 							value={wgId}
-							onChange={(e) => setWgId((e.target as HTMLInputElement).value)}
+							onChange={(e) => setWgId(e.target.value)}
 						/>
 						<Button
 							fullWidth
@@ -52,7 +52,7 @@ export function Home() {
 							variant="outlined"
 							size="small"
 							value={newWGName}
-							onChange={(e) => setNewWGName((e.target as HTMLInputElement).value)}
+							onChange={(e) => setNewWGName(e.target.value)}
 						/>
 						<Button
 							fullWidth
@@ -118,7 +118,7 @@ export function Home() {
 		});
 	}
 
-	function openGroup(wgId: string) {
+	function openGroup(wgId) {
 		localStorage.setItem('wgId', wgId);
 		location.route('/group/');
 	}

@@ -1,4 +1,5 @@
 import { render } from 'preact';
+import 'preact/devtools'
 import { LocationProvider, Router, Route } from 'preact-iso';
 
 import { Home } from './pages/Home/index.jsx';

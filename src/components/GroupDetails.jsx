@@ -6,9 +6,12 @@ import { useState } from "react";
 import { AddUserDialog } from "./AddUserDialog";
 import { API_BASE_URL, GROUPS_ENDPOINT } from "../const";
 import React from "react";
+import { EditUserDialog } from "./EditUserDialog";
 
 export function GroupDetails( { groupData, setSuccess, setError } ) {
     const [openAddUserDialog, setOpenAddUserDialog] = useState(false);
+    const [openEditUserDialog, setOpenEditUserDialog] = useState(false);
+    const [selectedMember, setSelectedMember] = useState()
     const [members, setMembers] = useState(groupData.members || []);
 
     console.log("GroupDetails render with groupData:", groupData);
@@ -30,6 +33,12 @@ export function GroupDetails( { groupData, setSuccess, setError } ) {
             deleteUser={() => removeMember(params.id)}
             closeMenuOnClick={false}
           />,
+          <EditUserActionItem
+            label="Bearbeiten"
+            showInMenu
+            closeMenuOnClick={false}
+            member={params.row}
+          />,
         ],
       },
     ];
@@ -37,6 +46,7 @@ export function GroupDetails( { groupData, setSuccess, setError } ) {
     return (
         <div>
             <AddUserDialog open={openAddUserDialog} onClose={() => setOpenAddUserDialog(false)} setMembers={setMembers} />
+            <EditUserDialog open={openEditUserDialog} onClose={() => setOpenEditUserDialog(false)} setMembers={setMembers} member={selectedMember} />
             <Grid container spacing={2}>
                 <Grid size={12}>
                     <Paper elevation={3} style={{ padding: 16 }}>
@@ -133,5 +143,19 @@ export function GroupDetails( { groupData, setSuccess, setError } ) {
                 </Dialog>
             </>
         );
+    }
+
+    function EditUserActionItem ( {member, ...props } ) {
+        return(
+            <> 
+                <GridActionsCellItem
+                    {...props}
+                    onClick={() => {
+                        setSelectedMember(member);
+                        setOpenEditUserDialog(true);
+                    }}
+                />
+            </>
+        )
     }
 }
